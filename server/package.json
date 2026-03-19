@@ -1,11 +1,13 @@
 {
-  "name": "codequest-server",
+  "name": "runebit-server",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
+    "db:migrate:prod": "npx prisma migrate deploy",
     "db:seed": "node src/seed/problems.js",
     "db:reset": "npx prisma db push --force-reset && node src/seed/problems.js",
     "setup": "npm install && npx prisma generate && npx prisma db push && node src/seed/problems.js"

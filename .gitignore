@@ -29,3 +29,5 @@ server/prisma/*.db-journal
 
 # Gemini
 .gemini/
+server/.env
+*.env.local

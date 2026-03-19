@@ -14,7 +14,10 @@ const app = Fastify({ logger: true })
 
 /* ---- Plugins ---- */
 await app.register(cors, {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: (process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : ['http://localhost:5173', 'http://localhost:5174']
+  ),
   credentials: true,
 })
 
@@ -47,14 +50,14 @@ app.register(problemRoutes, { prefix: '/api/problems' })
 app.register(submissionRoutes, { prefix: '/api/submissions' })
 
 /* ---- Health ---- */
-app.get('/api/health', async () => ({ status: 'ok', name: 'CodeQuest API' }))
+app.get('/api/health', async () => ({ status: 'ok', name: 'Runebit API' }))
 
 /* ---- Start ---- */
 const PORT = process.env.PORT || 3001
 
 try {
   await app.listen({ port: PORT, host: '0.0.0.0' })
-  console.log(`⚔️  CodeQuest API running on http://localhost:${PORT}`)
+  console.log(`⚔️  Runebit API running on http://localhost:${PORT}`)
 } catch (err) {
   app.log.error(err)
   process.exit(1)
