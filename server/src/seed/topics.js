@@ -1,0 +1,20 @@
+// Topic definitions for the 17 RPG-named DSA topics
+export const TOPICS = [
+  { slug: 'arrays-hashing', name: 'Arrays & Hashing', rpgName: 'The Crystal Caverns', tier: 1, order: 1, icon: '💎', color: '#39ff14' },
+  { slug: 'two-pointers', name: 'Two Pointers', rpgName: 'The Mirror Halls', tier: 2, order: 1, icon: '🪞', color: '#00e5ff' },
+  { slug: 'stack', name: 'Stack', rpgName: 'The Iron Citadel', tier: 2, order: 2, icon: '🏰', color: '#00e5ff' },
+  { slug: 'binary-search', name: 'Binary Search', rpgName: "The Oracle's Library", tier: 3, order: 1, icon: '📖', color: '#b347d9' },
+  { slug: 'sliding-window', name: 'Sliding Window', rpgName: 'The Enchanted River', tier: 3, order: 2, icon: '🌊', color: '#b347d9' },
+  { slug: 'linked-list', name: 'Linked List', rpgName: 'The Chain Depths', tier: 3, order: 3, icon: '⛓️', color: '#b347d9' },
+  { slug: 'trees', name: 'Trees', rpgName: 'The Elder Grove', tier: 4, order: 1, icon: '🌳', color: '#22c55e' },
+  { slug: 'tries', name: 'Tries', rpgName: 'The Runic Archives', tier: 5, order: 1, icon: '📜', color: '#f59e0b' },
+  { slug: 'backtracking', name: 'Backtracking', rpgName: 'The Labyrinth', tier: 5, order: 2, icon: '🌀', color: '#f59e0b' },
+  { slug: 'heap', name: 'Heap / Priority Queue', rpgName: "The Dragon's Hoard", tier: 6, order: 1, icon: '🐉', color: '#ef4444' },
+  { slug: 'graphs', name: 'Graphs', rpgName: 'The Web of Fates', tier: 6, order: 2, icon: '🕸️', color: '#ef4444' },
+  { slug: 'dp-1d', name: '1D Dynamic Programming', rpgName: "The Timeweaver's Den", tier: 6, order: 3, icon: '⏳', color: '#ef4444' },
+  { slug: 'intervals', name: 'Intervals', rpgName: 'The Chrono Spire', tier: 7, order: 1, icon: '🕰️', color: '#a855f7' },
+  { slug: 'greedy', name: 'Greedy', rpgName: "The Merchant's Guild", tier: 7, order: 2, icon: '💰', color: '#a855f7' },
+  { slug: 'adv-graphs', name: 'Advanced Graphs', rpgName: 'The Shadow Network', tier: 7, order: 3, icon: '🌑', color: '#a855f7' },
+  { slug: 'dp-2d', name: '2D Dynamic Programming', rpgName: 'The Dimensional Rift', tier: 7, order: 4, icon: '🌀', color: '#a855f7' },
+  { slug: 'bit-manipulation', name: 'Bit Manipulation', rpgName: 'The Binary Forge', tier: 7, order: 5, icon: '⚡', color: '#a855f7' },
+]

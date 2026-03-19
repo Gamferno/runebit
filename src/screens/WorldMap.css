@@ -1,0 +1,755 @@
+/* ---- WORLD MAP SCREEN ---- */
+.worldmap {
+  min-height: 100vh;
+  position: relative;
+  transition: background-color 1s ease, background-image 0.8s ease;
+}
+
+/* Dark overlay to keep nodes/text readable over tier background images */
+.worldmap__bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* .worldmap__bg is no longer needed, kept as no-op */
+.worldmap__bg {
+  display: none;
+}
+
+.worldmap__loading {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 56px);
+}
+
+.worldmap__loading-text {
+  font-size: 14px;
+  color: var(--neon-gold);
+  animation: pulse 1.5s infinite;
+}
+
+/* Header Overlay — anchored near the top, Arcane Realms + tier name */
+.worldmap__header-overlay {
+  position: fixed;
+  top: 64px;
+  /* just below the HUD bar */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.worldmap__heading {
+  font-size: 14px;
+  color: var(--neon-gold);
+  margin-bottom: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5), 0 0 6px #000;
+  opacity: 0.85;
+}
+
+/* Stylized tier name block that sits below the heading */
+.worldmap__tier-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.worldmap__tier-deco {
+  font-size: 11px;
+  letter-spacing: 4px;
+  opacity: 0.7;
+  text-shadow: inherit;
+}
+
+.worldmap__tier-name-text {
+  font-size: 28px;
+  font-family: 'Georgia', 'Times New Roman', fantasy, serif;
+  font-style: italic;
+  font-weight: bold;
+  letter-spacing: 2px;
+  display: block;
+  /* Color + glow come from inline style set per tier */
+  filter: drop-shadow(0 2px 8px currentColor);
+  position: relative;
+}
+
+/* Accent underline beneath tier name */
+.worldmap__tier-name-text::after {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 80%;
+  margin: 4px auto 0;
+  background: currentColor;
+  opacity: 0.5;
+  border-radius: 2px;
+}
+
+.worldmap__nav-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+/* Horizontal Viewport */
+.worldmap__viewport {
+  position: relative;
+  z-index: 10;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  /* Center the path-container vertically */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 50vw;
+  /* Padding allows the first and last nodes to be centered on screen */
+  scroll-behavior: smooth;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--neon-purple) rgba(0, 0, 0, 0.5);
+}
+
+.worldmap__viewport::-webkit-scrollbar {
+  height: 8px;
+}
+
+.worldmap__viewport::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+
+.worldmap__viewport::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 4px;
+}
+
+.worldmap__path-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 300px;
+  /* Tall enough for sine wave + hero above platforms */
+  position: relative;
+}
+
+/* Tier Separator — vertical banner inserted between tiers */
+.worldmap__tier-separator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  margin: 0 24px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.worldmap__tier-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid var(--tier-accent, #4a1a6e);
+  border-radius: 10px;
+  box-shadow: 0 0 24px var(--tier-accent, #4a1a6e), inset 0 0 12px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  animation: tier-glow 2s infinite alternate;
+  min-width: 80px;
+}
+
+@keyframes tier-glow {
+  from {
+    box-shadow: 0 0 10px var(--tier-accent, #4a1a6e);
+  }
+
+  to {
+    box-shadow: 0 0 30px var(--tier-accent, #4a1a6e), 0 0 60px rgba(255, 215, 0, 0.2);
+  }
+}
+
+.worldmap__tier-banner-symbol {
+  font-size: 20px;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.worldmap__tier-banner-label {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.worldmap__tier-banner-name {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* ============================================================
+   Full-height Divider Wall between tiers
+   ============================================================ */
+.worldmap__divider-wall {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: 440px;          /* tall enough to span the 300px path container vertically */
+  margin: 0 32px;
+  flex-shrink: 0;
+  z-index: 15;
+}
+
+/* Left & Right glowing stone pillars */
+.worldmap__wall-pillar {
+  width: 18px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--wall-color, #4a1a6e) 15%,
+    var(--wall-color, #4a1a6e) 85%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 14px var(--wall-glow, rgba(130,30,210,0.8)),
+    0 0 30px var(--wall-glow, rgba(130,30,210,0.5)),
+    inset 0 0 6px rgba(255,255,255,0.15);
+  border-radius: 4px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Gem-like notches on the pillars */
+.worldmap__wall-pillar::before,
+.worldmap__wall-pillar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--wall-glow, rgba(130,30,210,0.9));
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 0 8px var(--wall-glow, rgba(130,30,210,0.8));
+}
+.worldmap__wall-pillar::before { top: 22%; }
+.worldmap__wall-pillar::after  { top: 68%; }
+
+/* Center gate panel */
+.worldmap__wall-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 6px;
+  width: 72px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0,0,0,0.75) 10%,
+    rgba(0,0,0,0.85) 50%,
+    rgba(0,0,0,0.75) 90%,
+    transparent 100%
+  );
+  border-left:  1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+}
+
+.worldmap__wall-gate-top,
+.worldmap__wall-gate-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.worldmap__wall-symbol {
+  font-size: 22px;
+  filter: drop-shadow(0 0 6px var(--wall-glow, rgba(130,30,210,0.8)));
+  animation: wall-symbol-pulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes wall-symbol-pulse {
+  from { transform: scale(1);    opacity: 0.8; }
+  to   { transform: scale(1.15); opacity: 1;   }
+}
+
+.worldmap__wall-gate-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.worldmap__wall-tier-num {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1.5px;
+}
+
+.worldmap__wall-tier-name {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-size: 10px;
+  font-weight: bold;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px currentColor;
+  max-height: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Node Wrapper — flex column, hero on top, platform in middle, label below */
+.worldmap__node-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 220px;
+  margin-right: 130px;
+}
+
+
+/* Full-height background slice REMOVED — background is now a single fixed layer */
+
+/* Difficulty badge — floating pill above the platform node */
+.worldmap__diff-badge {
+  position: absolute;
+  top: 58px;
+  /* sits just above the platform node */
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.9;
+}
+
+.worldmap__diff-badge--easy {
+  color: #39ff14;
+  background: rgba(57, 255, 20, 0.12);
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+}
+
+.worldmap__diff-badge--medium {
+  color: #ffd600;
+  background: rgba(255, 214, 0, 0.12);
+  box-shadow: 0 0 8px rgba(255, 214, 0, 0.4);
+}
+
+.worldmap__diff-badge--boss {
+  color: #ff1744;
+  background: rgba(255, 23, 68, 0.15);
+  box-shadow: 0 0 10px rgba(255, 23, 68, 0.6);
+  animation: boss-pulse 1.5s infinite alternate;
+}
+
+@keyframes boss-pulse {
+  from {
+    box-shadow: 0 0 6px rgba(255, 23, 68, 0.4);
+  }
+
+  to {
+    box-shadow: 0 0 18px rgba(255, 23, 68, 0.9);
+  }
+}
+
+/* Node border color reinforces difficulty even without the badge */
+.worldmap__node[data-difficulty="easy"] {
+  border-top-color: rgba(57, 255, 20, 0.6);
+}
+
+.worldmap__node[data-difficulty="medium"] {
+  border-top-color: rgba(255, 214, 0, 0.6);
+}
+
+.worldmap__node[data-difficulty="boss"] {
+  border-top-color: rgba(255, 23, 68, 0.8);
+}
+
+
+/* SVG Dotted Path connecting nodes */
+.worldmap__path-svg {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  /* Start drawing from center of current node */
+  width: 150px;
+  /* Span across gap to next node */
+  height: 100px;
+  pointer-events: none;
+  z-index: 1;
+  /* Underneath nodes */
+  overflow: visible;
+}
+
+.worldmap__path-line {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 4;
+  stroke-dasharray: 8 8;
+}
+
+.worldmap__path-line--glow {
+  stroke: var(--neon-gold);
+  filter: drop-shadow(0 0 5px var(--neon-gold));
+  animation: march 1s linear infinite;
+}
+
+@keyframes march {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* Individual Node Platform */
+.worldmap__node {
+  position: relative;
+  z-index: 5;
+  width: 90px;
+  height: 45px;
+  border-radius: 50%;
+  /* Creates a 3D isometric platform effect */
+  background: radial-gradient(ellipse at top, #4a3f66 0%, #2a2040 60%);
+  border: 4px solid #1a1025;
+  border-bottom-width: 8px;
+  border-bottom-color: #0d0618;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.7);
+}
+
+/* No node icon needed — hero sprite IS the marker on current nodes */
+.worldmap__node-icon {
+  display: none;
+}
+
+/* Green check for completed nodes */
+.worldmap__node-check {
+  font-size: 20px;
+  color: #fff;
+  font-weight: bold;
+  transform: translateY(-4px);
+}
+
+/* Node States */
+.worldmap__node--locked {
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.worldmap__node--unlocked {
+  border-color: var(--neon-purple);
+  border-bottom-color: #3d1b5c;
+  box-shadow: 0 10px 30px rgba(179, 71, 217, 0.6);
+}
+
+.worldmap__node--unlocked:hover {
+  transform: scale(1.1) translateY(-5px);
+  border-color: var(--neon-blue);
+  border-bottom-color: #0088aa;
+  box-shadow: 0 15px 40px var(--neon-blue);
+}
+
+.worldmap__node--done {
+  border-color: var(--neon-green);
+  border-bottom-color: #1b4d09;
+  background: radial-gradient(ellipse at top, #3a663f 0%, #1a4020 60%);
+  box-shadow: 0 10px 30px rgba(57, 255, 20, 0.5);
+}
+
+.worldmap__node--boss {
+  width: 110px;
+  height: 55px;
+  border-color: var(--neon-red);
+  border-bottom-color: #660000;
+  background: radial-gradient(ellipse at top, #663f3f 0%, #401a1a 60%);
+}
+
+.worldmap__node--boss .worldmap__node-icon {
+  transform: translateY(-8px) scale(1.3);
+}
+
+/* Current Node Pulse */
+.worldmap__node--current {
+  border-color: var(--neon-gold);
+  border-bottom-color: #886600;
+  animation: pulse-node 2s infinite;
+}
+
+@keyframes pulse-node {
+  0% {
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.8);
+  }
+
+  100% {
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* Hero Standing on Node — absolutely placed in the upper zone of the 220px node-wrapper */
+.worldmap__hero-marker {
+  position: absolute;
+  top: 0px;
+  /* Upper portion of the 220px wrapper */
+  left: -20%;
+  transform: translateX(-55%);
+  /* Nudge slightly left to center on the oval */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 20;
+  animation: idle-bounce 1s infinite alternate ease-in-out;
+}
+
+.worldmap__node--boss .worldmap__hero-marker {
+  top: -95px;
+}
+
+.worldmap__hero-marker img {
+  width: 130px;
+  height: 290px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 10px rgba(0, 229, 255, 0.6));
+}
+
+.worldmap__hero-sparkle {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 16px;
+  animation: pulse 1s infinite alternate;
+}
+
+.worldmap__node-label {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.worldmap__node--boss .worldmap__node-label {
+  transform: translateX(-50%) rotate(-45deg);
+  bottom: -45px;
+}
+
+.worldmap__node-title {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.worldmap__node-stars {
+  display: block;
+  font-size: 8px;
+  color: var(--neon-gold);
+  margin-top: 2px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Quest Confirmation Modal */
+.worldmap__modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.worldmap__modal {
+  background: radial-gradient(circle at center, #1a0a30 0%, #0d0618 100%);
+  border: 2px solid var(--neon-purple);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 30px rgba(179, 71, 217, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.worldmap__modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(179, 71, 217, 0.3);
+}
+
+.worldmap__modal-header h3 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--neon-gold);
+  letter-spacing: 1px;
+}
+
+.worldmap__modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.worldmap__modal-close:hover {
+  color: var(--neon-red);
+}
+
+.worldmap__modal-body {
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.worldmap__modal-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.worldmap__modal-title {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.worldmap__modal-rpg {
+  margin: 0;
+  font-size: 10px;
+  color: var(--neon-purple);
+}
+
+.worldmap__modal-stats {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.worldmap__modal-diff {
+  font-size: 10px;
+  color: var(--neon-gold);
+}
+
+.worldmap__modal-xp {
+  font-size: 10px;
+  color: var(--neon-green);
+}
+
+.worldmap__modal-enemy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.worldmap__modal-enemy img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.worldmap__modal-enemy span {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.worldmap__modal-actions {
+  display: flex;
+  padding: 16px;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-top: 1px solid rgba(179, 71, 217, 0.2);
+}
+
+.worldmap__modal-actions .pixel-btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 10px;
+}

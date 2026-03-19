@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String?
+  googleId     String?        @unique
+  name         String         @default("Hero")
+  avatarUrl    String?
+  level        Int            @default(1)
+  xp           Int            @default(0)
+  xpToNext     Int            @default(100)
+  streak          Int            @default(0)
+  title           String         @default("Newbie Coder")
+  lastActive      DateTime       @default(now())
+  lastActiveDate  DateTime?
+  createdAt       DateTime       @default(now())
+
+  submissions  Submission[]
+  progress     UserProgress[]
+  achievements Achievement[]
+}
+
+model Topic {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  rpgName  String
+  tier     Int
+  order    Int
+  icon     String    @default("⚔️")
+  color    String    @default("#39ff14")
+  problems Problem[]
+}
+
+model Problem {
+  id          Int       @id @default(autoincrement())
+  topicId     Int
+  title       String
+  description String
+  difficulty  String    // easy, medium, boss
+  enemyName   String
+  enemyTier   Int       @default(1)
+  xpReward    Int       @default(50)
+  enemyHp     Int       @default(100)
+  starterCode String    // JSON: { javascript, python, java, cpp }
+  testCases   String    // JSON: [{ input, expected }]
+  solution    String    // JSON: { javascript, python, java, cpp }
+  order       Int       @default(0)
+
+  topic       Topic     @relation(fields: [topicId], references: [id])
+  submissions Submission[]
+  progress    UserProgress[]
+}
+
+model Submission {
+  id        String    @id @default(cuid())
+  userId    String
+  problemId Int
+  language  String
+  code      String
+  status    String    // passed, failed, error
+  stars     Int       @default(0)
+  xpGained  Int       @default(0)
+  runtime   String?
+  memory    String?
+  createdAt DateTime  @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  problem Problem @relation(fields: [problemId], references: [id])
+}
+
+model UserProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  problemId Int
+  completed Boolean  @default(false)
+  stars     Int      @default(0)
+  bestTime  String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  @@unique([userId, problemId])
+}
+
+model Achievement {
+  id       String   @id @default(cuid())
+  userId   String
+  type     String
+  earnedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type])
+}

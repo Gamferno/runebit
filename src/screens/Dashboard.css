@@ -1,0 +1,123 @@
+.dashboard {
+  min-height: 100vh; padding-top: 56px;
+  background: radial-gradient(ellipse at 50% 0%, #1a0a30 0%, #0d0620 60%, #080415 100%);
+}
+
+.dashboard__content { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+.dashboard__loading { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 56px); font-size: 14px; color: var(--neon-gold); }
+.dashboard__back-row { margin-bottom: 16px; }
+.dashboard__back-btn { font-size: 9px; padding: 6px 14px; }
+
+
+.dashboard__profile {
+  display: flex; align-items: center; gap: 20px; padding: 24px; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.dashboard__avatar-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: #fff;
+  box-shadow: 0 0 20px rgba(179, 71, 217, 0.4);
+}
+
+.dashboard__profile-info { flex: 1; }
+.dashboard__name { font-size: 16px; color: var(--neon-gold); margin-bottom: 4px; }
+.dashboard__title-text { font-size: 8px; color: var(--neon-purple); margin-bottom: 2px; }
+.dashboard__level { font-size: 9px; color: var(--text-secondary); }
+
+.dashboard__quick-stats { display: flex; gap: 16px; }
+.dashboard__qstat { text-align: center; padding: 8px 16px; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); }
+.dashboard__qstat-val { display: block; font-size: 18px; color: var(--neon-gold); }
+.dashboard__qstat-label { font-size: 7px; color: var(--text-dim); }
+
+.dashboard__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+.dashboard__xp-card { padding: 16px; grid-column: 1 / -1; }
+.stat-bar--lg { height: 24px; }
+
+.dashboard__tiers { padding: 16px; }
+.dashboard__tier-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.dashboard__tier-label { font-size: 8px; color: var(--text-secondary); width: 48px; }
+.dashboard__tier-count { font-size: 7px; color: var(--text-dim); }
+.stat-bar--sm { flex: 1; height: 10px; }
+.stat-bar__fill--purple { background: linear-gradient(90deg, var(--neon-purple), #d175f7); }
+
+.dashboard__skills { padding: 16px; }
+.dashboard__skill-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(179, 71, 217, 0.1); }
+.dashboard__skill-name { font-size: 8px; color: var(--text-secondary); text-transform: capitalize; }
+.dashboard__skill-count { font-size: 8px; color: var(--neon-green); }
+.dashboard__empty { font-size: 8px; color: var(--text-dim); text-align: center; padding: 16px 0; }
+
+.dashboard__section-title { font-size: 10px; color: var(--neon-purple); display: block; margin-bottom: 8px; }
+
+.dashboard__actions { display: flex; justify-content: center; gap: 16px; }
+
+/* Achievements */
+.dashboard__achievements {
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.dashboard__badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.dashboard__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 14px 8px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: all 0.3s ease;
+}
+
+.dashboard__badge--unlocked {
+  opacity: 1;
+  filter: grayscale(0);
+  border-color: rgba(255, 215, 0, 0.35);
+  background: rgba(255, 215, 0, 0.06);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.12), inset 0 0 12px rgba(255, 215, 0, 0.04);
+}
+
+.dashboard__badge-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.dashboard__badge-name {
+  font-size: 8px;
+  color: var(--neon-gold);
+  margin-bottom: 3px;
+  letter-spacing: 0.5px;
+}
+
+.dashboard__badge-desc {
+  font-size: 6px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.dashboard__badge-status {
+  font-size: 6px;
+  color: var(--neon-green);
+}
+
+.dashboard__badge-status--locked {
+  color: var(--text-dim);
+}
+
+@media (max-width: 600px) {
+  .dashboard__grid { grid-template-columns: 1fr; }
+  .dashboard__profile { flex-direction: column; text-align: center; }
+}
